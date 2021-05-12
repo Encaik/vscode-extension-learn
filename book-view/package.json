@@ -10,8 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:book-view.helloWorld",
-    "onView:allBookList"
+    "onView:allBookList",
+    "onCommand:book-view.helloWorld"
   ],
   "main": "./out/extension.js",
   "contributes": {

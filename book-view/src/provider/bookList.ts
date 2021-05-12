@@ -20,19 +20,41 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
 
   getChildren(element?: BookItem): vscode.ProviderResult<BookItem[]> {
     if (element) {
-      console.log('getChildren',element);
+      return this.getChapterList(element.data.bookName).then(chapterRes=>{
+        let chapter$ = cheerio.load(chapterRes.data);
+        let list = chapter$("#list dd a");
+        let chapters = [];
+        for (let i = 0; i < list.length; i++) {
+            let li = list.eq(i);
+            let chapter = {
+                chapterName: li.text().trim(),
+                chapterUrl: li.attr("href")?.trim()||""
+            };
+            let chapterItem = new ChapterItem(chapter,vscode.TreeItemCollapsibleState.None);
+            chapterItem.command = {
+              title: chapter.chapterName,
+              command: 'book-view.helloWorld',
+              tooltip: chapter.chapterName,
+              arguments: [
+                  chapter,
+              ]
+            };
+            chapters[i] = chapterItem;
+        }
+        return chapters;
+      });
     } else {
       return this.getBookList().then(res=>{
         let $ = cheerio.load(res.data);
         let list = $(".all-img-list>li");
-        var books = [];
-        for (var i = 0; i < list.length; i++) {
-            var li = list.eq(i);
-            var book = {
+        let books = [];
+        for (let i = 0; i < list.length; i++) {
+            let li = list.eq(i);
+            let book = {
                 bookName: li.find("h4").text().trim(),
                 bookAuthor: li.find(".book-mid-info .author .name").text().trim()
             };
-            books[i] = new BookItem(book.bookName,vscode.TreeItemCollapsibleState.None);
+            books[i] = new BookItem(book,vscode.TreeItemCollapsibleState.Collapsed);
         }
         return books;
       });
@@ -42,10 +64,35 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
   getBookList():Promise<any>{
     return axios.get(this.url);
   }
+
+  getChapterList(bookName:string):Promise<any>{
+    return this.getBookInfo(bookName).then(res => {
+      let $ = cheerio.load(res.data);
+      let bookUrl = $(".grid tr:not(:first-child) td:first-child a").attr("href")?.trim();
+      if (bookUrl) {
+        return axios.get(bookUrl);
+      }
+    });
+  }
+
+  getBookInfo(bookName:string):Promise<any>{
+    let url = "http://www.xbiquge.la/modules/article/waps.php?searchkey=" + encodeURIComponent(bookName);
+    return axios.post(url);
+  }
 }
 
 export class BookItem extends vscode.TreeItem {
-  constructor(label:string,state:vscode.TreeItemCollapsibleState) {
-    super(label,state);
+  data:{[key:string]:string} = {};
+  constructor(data:{[key:string]:string},state:vscode.TreeItemCollapsibleState) {
+    super(`${data.bookName}(作者：${data.bookAuthor})`,state);
+    this.data = data;
+  }
+}
+
+export class ChapterItem extends vscode.TreeItem {
+  data:{[key:string]:string} = {};
+  constructor(data:{[key:string]:string},state:vscode.TreeItemCollapsibleState) {
+    super(data.chapterName,state);
+    this.data = data;
   }
 }

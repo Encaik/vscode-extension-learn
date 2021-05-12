@@ -1,5 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import axios from 'axios';
+import cheerio from 'cheerio';
 import * as vscode from 'vscode';
 import { BookList } from './provider/bookList';
 
@@ -14,11 +16,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('book-view.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from book-view!');
+	let disposable = vscode.commands.registerCommand('book-view.helloWorld', (chapter) => {
+		vscode.window.showInformationMessage(chapter.chapterName);
+		axios.get("http://www.xbiquge.la/"+chapter.chapterUrl).then(res=>{
+			const panel = vscode.window.createWebviewPanel(
+				'book',
+				chapter.chapterName,
+				vscode.ViewColumn.One,
+				{}
+			);
+			let $ = cheerio.load(res.data);
+			let content = $("#content");
+			panel.webview.html = content.toString();
+		});
 	});
 
 	//全部小说列表

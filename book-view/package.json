@@ -1,8 +1,9 @@
 {
   "name": "book-view",
   "displayName": "book-view",
+  "publisher": "Encaik",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.46.0"
   },
@@ -14,6 +15,7 @@
     "onCommand:book-view.helloWorld"
   ],
   "main": "./out/extension.js",
+  "icon": "assets/icon.png",
   "contributes": {
     "commands": [
       {
@@ -54,7 +56,7 @@
         {
           "id": "book-explorer",
           "title": "小说阅读器",
-          "icon": "src/assert/favicon.svg"
+          "icon": "assets/favicon.svg"
         }
       ]
     }

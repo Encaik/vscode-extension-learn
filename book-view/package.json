@@ -2,8 +2,8 @@
   "name": "book-view",
   "displayName": "book-view",
   "publisher": "Encaik",
-  "description": "",
-  "version": "0.0.3",
+  "description": "一个简单的小说阅读器",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.46.0"
   },
@@ -12,15 +12,15 @@
   ],
   "activationEvents": [
     "onView:allBookList",
-    "onCommand:book-view.helloWorld"
+    "onCommand:book-view.message"
   ],
   "main": "./out/extension.js",
   "icon": "assets/icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "book-view.helloWorld",
-        "title": "Hello World"
+        "command": "book-view.message",
+        "title": "message"
       }
     ],
     "views": {
@@ -32,22 +32,6 @@
         {
           "id": "finishBookList",
           "name": "完本作品人气排行榜"
-        },
-        {
-          "id": "list3",
-          "name": "起点月票榜"
-        },
-        {
-          "id": "list4",
-          "name": "24小时热销榜"
-        },
-        {
-          "id": "list5",
-          "name": "阅读指数榜"
-        },
-        {
-          "id": "list6",
-          "name": "推荐票榜"
         }
       ]
     },

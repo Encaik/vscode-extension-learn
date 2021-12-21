@@ -25,16 +25,7 @@ class BookList {
                         chapterName: li.text().trim(),
                         chapterUrl: ((_a = li.attr("href")) === null || _a === void 0 ? void 0 : _a.trim()) || ""
                     };
-                    let chapterItem = new ChapterItem(chapter, vscode.TreeItemCollapsibleState.None);
-                    chapterItem.command = {
-                        title: chapter.chapterName,
-                        command: 'book-view.helloWorld',
-                        tooltip: chapter.chapterName,
-                        arguments: [
-                            chapter,
-                        ]
-                    };
-                    chapters[i] = chapterItem;
+                    chapters[i] = new ChapterItem(chapter, vscode.TreeItemCollapsibleState.None);
                 }
                 return chapters;
             });
@@ -47,7 +38,7 @@ class BookList {
                 for (let i = 0; i < list.length; i++) {
                     let li = list.eq(i);
                     let book = {
-                        bookName: li.find("h4").text().trim(),
+                        bookName: li.find("h2").text().trim(),
                         bookAuthor: li.find(".book-mid-info .author .name").text().trim()
                     };
                     books[i] = new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed);

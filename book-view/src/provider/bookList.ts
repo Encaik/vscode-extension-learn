@@ -30,16 +30,7 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
                 chapterName: li.text().trim(),
                 chapterUrl: li.attr("href")?.trim()||""
             };
-            let chapterItem = new ChapterItem(chapter,vscode.TreeItemCollapsibleState.None);
-            chapterItem.command = {
-              title: chapter.chapterName,
-              command: 'book-view.helloWorld',
-              tooltip: chapter.chapterName,
-              arguments: [
-                  chapter,
-              ]
-            };
-            chapters[i] = chapterItem;
+            chapters[i] = new ChapterItem(chapter,vscode.TreeItemCollapsibleState.None);
         }
         return chapters;
       });
@@ -51,7 +42,7 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
         for (let i = 0; i < list.length; i++) {
             let li = list.eq(i);
             let book = {
-                bookName: li.find("h4").text().trim(),
+                bookName: li.find("h2").text().trim(),
                 bookAuthor: li.find(".book-mid-info .author .name").text().trim()
             };
             books[i] = new BookItem(book,vscode.TreeItemCollapsibleState.Collapsed);

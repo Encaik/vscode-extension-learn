@@ -3,7 +3,7 @@
   "displayName": "book-view",
   "publisher": "Encaik",
   "description": "一个简单的小说阅读器",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.46.0"
   },

@@ -9,25 +9,34 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(disposable);
 
-	let allBookList = vscode.window.createTreeView('allBookList',{
-		treeDataProvider:new BookList("https://www.qidian.com/all")
+	let books = new BookList("https://www.qidian.com/all");
+	let allBookList = vscode.window.createTreeView('allBookList', {
+		treeDataProvider: books
 	});
 
-	allBookList.onDidChangeSelection(({selection})=>{
+	allBookList.onDidChangeSelection(({ selection }) => {
 		let item = selection[0];
-		if(!item.collapsibleState){
-			let chapter = item.data;
-			axios.get("http://www.xbiquge.la/"+chapter.chapterUrl).then(res=>{
-			const panel = vscode.window.createWebviewPanel(
-				'book',
-				chapter.chapterName,
-				vscode.ViewColumn.One,
-				{}
-			);
-			let $ = cheerio.load(res.data);
-			let content = $("#content");
-			panel.webview.html = content.toString();
-		});
+		if (!item.collapsibleState) {
+			switch (item.data.type) {
+				case 'chapter':
+					let chapter = item.data;
+					axios.get("http://www.xbiquge.la/" + chapter.chapterUrl).then(res => {
+						const panel = vscode.window.createWebviewPanel(
+							'book',
+							chapter.chapterName,
+							vscode.ViewColumn.One,
+							{}
+						);
+						let $ = cheerio.load(res.data);
+						let content = $("#content");
+						panel.webview.html = content.toString();
+					});
+					break;
+				case 'load':
+					books.load();
+					break;
+			}
+
 		}
 	});
 
@@ -39,4 +48,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

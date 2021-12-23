@@ -1,12 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ChapterItem = exports.BookItem = exports.BookList = void 0;
+exports.LoadMore = exports.ChapterItem = exports.BookItem = exports.BookList = void 0;
 const vscode = require("vscode");
 const axios_1 = require("axios");
 const cheerio_1 = require("cheerio");
 class BookList {
     constructor(url) {
         this.url = "";
+        this.books = [];
+        this.page = 1;
+        this._onDidChangeTreeData = new vscode.EventEmitter();
+        this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.url = url;
     }
     getTreeItem(element) {
@@ -23,7 +27,8 @@ class BookList {
                     let li = list.eq(i);
                     let chapter = {
                         chapterName: li.text().trim(),
-                        chapterUrl: ((_a = li.attr("href")) === null || _a === void 0 ? void 0 : _a.trim()) || ""
+                        chapterUrl: ((_a = li.attr("href")) === null || _a === void 0 ? void 0 : _a.trim()) || "",
+                        type: 'chapter'
                     };
                     chapters[i] = new ChapterItem(chapter, vscode.TreeItemCollapsibleState.None);
                 }
@@ -31,20 +36,41 @@ class BookList {
             });
         }
         else {
-            return this.getBookList().then(res => {
-                let $ = cheerio_1.default.load(res.data);
-                let list = $(".all-img-list>li");
-                let books = [];
-                for (let i = 0; i < list.length; i++) {
-                    let li = list.eq(i);
-                    let book = {
-                        bookName: li.find("h2").text().trim(),
-                        bookAuthor: li.find(".book-mid-info .author .name").text().trim()
-                    };
-                    books[i] = new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed);
-                }
-                return books;
-            });
+            if (this.page === 1) {
+                this.books = [];
+                return this.getBookList().then(res => {
+                    let $ = cheerio_1.default.load(res.data);
+                    let list = $(".all-img-list>li");
+                    for (let i = 0; i < list.length; i++) {
+                        let li = list.eq(i);
+                        let book = {
+                            bookName: li.find("h2").text().trim(),
+                            bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
+                            type: 'book'
+                        };
+                        this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
+                    }
+                    this.page++;
+                    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
+                });
+            }
+            else {
+                return axios_1.default.get(this.url + `/page${this.page}/`).then(res => {
+                    let $ = cheerio_1.default.load(res.data);
+                    let list = $(".all-img-list>li");
+                    for (let i = 0; i < list.length; i++) {
+                        let li = list.eq(i);
+                        let book = {
+                            bookName: li.find("h2").text().trim(),
+                            bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
+                            type: 'book'
+                        };
+                        this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
+                    }
+                    this.page++;
+                    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
+                });
+            }
         }
     }
     getBookList() {
@@ -64,6 +90,9 @@ class BookList {
         let url = "http://www.xbiquge.la/modules/article/waps.php?searchkey=" + encodeURIComponent(bookName);
         return axios_1.default.post(url);
     }
+    load() {
+        this._onDidChangeTreeData.fire();
+    }
 }
 exports.BookList = BookList;
 class BookItem extends vscode.TreeItem {
@@ -82,4 +111,12 @@ class ChapterItem extends vscode.TreeItem {
     }
 }
 exports.ChapterItem = ChapterItem;
+class LoadMore extends vscode.TreeItem {
+    constructor(data, state) {
+        super("加载更多", state);
+        this.data = {};
+        this.data = data;
+    }
+}
+exports.LoadMore = LoadMore;
 //# sourceMappingURL=bookList.js.map

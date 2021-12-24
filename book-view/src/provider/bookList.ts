@@ -39,43 +39,35 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
     } else {
       if (this.page === 1) {
         this.books = [];
-        return this.getBookList().then(res => {
-          let $ = cheerio.load(res.data);
-          let list = $(".all-img-list>li");
-          for (let i = 0; i < list.length; i++) {
-            let li = list.eq(i);
-            let book = {
-              bookName: li.find("h2").text().trim(),
-              bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
-              type: 'book'
-            };
-            this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
-          }
-          this.page++;
-          return [...this.books,new LoadMore({type:'load'}, vscode.TreeItemCollapsibleState.None)];
+        return this.getBookList(this.url).then(res => {
+          return this.addBook(res);
         });
       } else {
-        return axios.get(this.url + `/page${this.page}/`).then(res => {
-          let $ = cheerio.load(res.data);
-          let list = $(".all-img-list>li");
-          for (let i = 0; i < list.length; i++) {
-            let li = list.eq(i);
-            let book = {
-              bookName: li.find("h2").text().trim(),
-              bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
-              type: 'book'
-            };
-            this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
-          }
-          this.page++;
-          return [...this.books,new LoadMore({type:'load'}, vscode.TreeItemCollapsibleState.None)];
+        return this.getBookList(this.url + `/page${this.page}/`).then(res => {
+          return this.addBook(res);
         });
       }
     }
   }
 
-  getBookList(): Promise<any> {
-    return axios.get(this.url);
+  getBookList(url: string): Promise<any> {
+    return axios.get(url);
+  }
+
+  addBook(res: any) {
+    let $ = cheerio.load(res.data);
+    let list = $(".all-img-list>li");
+    for (let i = 0; i < list.length; i++) {
+      let li = list.eq(i);
+      let book = {
+        bookName: li.find("h2").text().trim(),
+        bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
+        type: 'book'
+      };
+      this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
+    }
+    this.page++;
+    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
   }
 
   getChapterList(bookName: string): Promise<any> {

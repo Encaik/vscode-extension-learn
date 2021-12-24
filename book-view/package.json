@@ -1,9 +1,10 @@
 {
   "name": "book-view",
-  "displayName": "book-view",
+  "displayName": "在线小说排行榜阅读器",
   "publisher": "Encaik",
-  "description": "一个简单的小说阅读器",
-  "version": "0.0.5",
+  "description": "一个简单的获取小说排行榜在线浏览小说的阅读器",
+  "keywords": ["小说","摸鱼","阅读器","xiaoshuo"],
+  "version": "0.0.6",
   "engines": {
     "vscode": "^1.46.0"
   },

@@ -38,43 +38,34 @@ class BookList {
         else {
             if (this.page === 1) {
                 this.books = [];
-                return this.getBookList().then(res => {
-                    let $ = cheerio_1.default.load(res.data);
-                    let list = $(".all-img-list>li");
-                    for (let i = 0; i < list.length; i++) {
-                        let li = list.eq(i);
-                        let book = {
-                            bookName: li.find("h2").text().trim(),
-                            bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
-                            type: 'book'
-                        };
-                        this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
-                    }
-                    this.page++;
-                    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
+                return this.getBookList(this.url).then(res => {
+                    return this.addBook(res);
                 });
             }
             else {
-                return axios_1.default.get(this.url + `/page${this.page}/`).then(res => {
-                    let $ = cheerio_1.default.load(res.data);
-                    let list = $(".all-img-list>li");
-                    for (let i = 0; i < list.length; i++) {
-                        let li = list.eq(i);
-                        let book = {
-                            bookName: li.find("h2").text().trim(),
-                            bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
-                            type: 'book'
-                        };
-                        this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
-                    }
-                    this.page++;
-                    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
+                return this.getBookList(this.url + `/page${this.page}/`).then(res => {
+                    return this.addBook(res);
                 });
             }
         }
     }
-    getBookList() {
-        return axios_1.default.get(this.url);
+    getBookList(url) {
+        return axios_1.default.get(url);
+    }
+    addBook(res) {
+        let $ = cheerio_1.default.load(res.data);
+        let list = $(".all-img-list>li");
+        for (let i = 0; i < list.length; i++) {
+            let li = list.eq(i);
+            let book = {
+                bookName: li.find("h2").text().trim(),
+                bookAuthor: li.find(".book-mid-info .author .name").text().trim(),
+                type: 'book'
+            };
+            this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
+        }
+        this.page++;
+        return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
     }
     getChapterList(bookName) {
         return this.getBookInfo(bookName).then(res => {

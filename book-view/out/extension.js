@@ -16,23 +16,9 @@ function activate(context) {
         treeDataProvider: allBookList
     });
     allBookListTreeView.onDidChangeSelection(({ selection }) => {
+        console.log(selection);
         let item = selection[0];
-        if (!item.collapsibleState) {
-            switch (item.data.type) {
-                case 'chapter':
-                    let chapter = item.data;
-                    axios_1.default.get("http://www.xbiquge.la/" + chapter.chapterUrl).then(res => {
-                        const panel = vscode.window.createWebviewPanel('book', chapter.chapterName, vscode.ViewColumn.One, {});
-                        let $ = cheerio_1.default.load(res.data);
-                        let content = $("#content");
-                        panel.webview.html = content.toString();
-                    });
-                    break;
-                case 'load':
-                    allBookList.load();
-                    break;
-            }
-        }
+        fun(item, allBookList);
     });
     // 完本小说排行榜
     let finishBookList = new bookList_1.BookList("https://www.qidian.com/finish");
@@ -41,6 +27,9 @@ function activate(context) {
     });
     finishBookListTreeView.onDidChangeSelection(({ selection }) => {
         let item = selection[0];
+        fun(item, finishBookList);
+    });
+    function fun(item, list) {
         if (!item.collapsibleState) {
             switch (item.data.type) {
                 case 'chapter':
@@ -49,15 +38,16 @@ function activate(context) {
                         const panel = vscode.window.createWebviewPanel('book', chapter.chapterName, vscode.ViewColumn.One, {});
                         let $ = cheerio_1.default.load(res.data);
                         let content = $("#content");
+                        content.attr('style', 'font-size: 14pt;');
                         panel.webview.html = content.toString();
                     });
                     break;
                 case 'load':
-                    finishBookList.load();
+                    list.load();
                     break;
             }
         }
-    });
+    }
 }
 exports.activate = activate;
 // this method is called when your extension is deactivated

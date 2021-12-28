@@ -67,7 +67,7 @@ export class BookList implements vscode.TreeDataProvider<BookItem> {
       this.books.push(new BookItem(book, vscode.TreeItemCollapsibleState.Collapsed));
     }
     this.page++;
-    return [...this.books, new LoadMore({ type: 'load' }, vscode.TreeItemCollapsibleState.None)];
+    return [...this.books, new LoadMore({ type: 'load',timestamp:new Date().toString() }, vscode.TreeItemCollapsibleState.None)];
   }
 
   getChapterList(bookName: string): Promise<any> {

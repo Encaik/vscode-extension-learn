@@ -15,29 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: allBookList
 	});
 
-	allBookListTreeView.onDidChangeSelection(({ selection }) => {
+	allBookListTreeView.onDidChangeSelection(({selection})=>{
+		console.log(selection);
 		let item = selection[0];
-		if (!item.collapsibleState) {
-			switch (item.data.type) {
-				case 'chapter':
-					let chapter = item.data;
-					axios.get("http://www.xbiquge.la/" + chapter.chapterUrl).then(res => {
-						const panel = vscode.window.createWebviewPanel(
-							'book',
-							chapter.chapterName,
-							vscode.ViewColumn.One,
-							{}
-						);
-						let $ = cheerio.load(res.data);
-						let content = $("#content");
-						panel.webview.html = content.toString();
-					});
-					break;
-				case 'load':
-					allBookList.load();
-					break;
-			}
-		}
+		fun(item,allBookList);
 	});
 
 	// 完本小说排行榜
@@ -46,8 +27,12 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: finishBookList
 	});
 
-	finishBookListTreeView.onDidChangeSelection(({ selection }) => {
+	finishBookListTreeView.onDidChangeSelection(({selection})=>{
 		let item = selection[0];
+		fun(item,finishBookList);
+	});
+
+	function fun(item:any,list:any) {
 		if (!item.collapsibleState) {
 			switch (item.data.type) {
 				case 'chapter':
@@ -61,15 +46,16 @@ export function activate(context: vscode.ExtensionContext) {
 						);
 						let $ = cheerio.load(res.data);
 						let content = $("#content");
+						content.attr('style','font-size: 14pt;');
 						panel.webview.html = content.toString();
 					});
 					break;
 				case 'load':
-					finishBookList.load();
+					list.load();
 					break;
 			}
 		}
-	});
+	}
 }
 
 // this method is called when your extension is deactivated

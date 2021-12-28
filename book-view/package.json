@@ -4,7 +4,7 @@
   "publisher": "Encaik",
   "description": "一个简单的获取小说排行榜在线浏览小说的阅读器",
   "keywords": ["小说","摸鱼","阅读器","xiaoshuo"],
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.46.0"
   },
@@ -13,6 +13,7 @@
   ],
   "activationEvents": [
     "onView:allBookList",
+    "onView:finishBookList",
     "onCommand:book-view.message"
   ],
   "main": "./out/extension.js",
